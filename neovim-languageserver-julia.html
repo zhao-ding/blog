@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <meta name="keywords" content="neovim, vim, languageserver, julia, lsp">
+  <meta name="description" content="Showcasing Neovim and LanguageServer.jl">
+  <title>Neovim + LanguageServer.jl</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="css/table.css">
+  <link rel="stylesheet" href="css/pandoc-solarized.css">
+  <link rel="stylesheet" href="css/pandoc.css">
+  <link rel="stylesheet" href="css/tufte.css">
+  <link rel="stylesheet" href="css/tufte-extra.css">
+  <link rel="stylesheet" href="css/latex.css">
+  <link rel="stylesheet" href="css/custom.css">
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<article>
+<header>
+<h1 class="title"><a class="home" href="/">~/</a> Neovim + LanguageServer.jl</h1>
+<p class="subtitle sourceurl">
+ <a class="sourceurl" target="_blank" href="https://github.com/kdheepak/blog/blob/287f09217b83a30c1d99252d8995c86ef82285ed/content/32-neovim-languageserver-julia.md">
+    Tue, Jun 02, 2020
+ </a>
+</p>
+</header>
+<section>
+<p>This is a showcase of some of the capabilities of <a href="https://github.com/julia-vscode/LanguageServer.jl">Julia’s LanguageServer.jl</a> and <a href="https://neovim.io/doc/user/lsp.html">Neovim’s built-in Language Server Protocol (LSP) client</a>, as well as the instructions to install this setup.</p>
+<section id="capabilities" class="level1">
+<h1><a href="#capabilities">#</a> Capabilities</h1>
+<p>The <code>.vimrc</code> code corresponding to the capability is linked in the caption of each screencapture.</p>
+<section id="completion" class="level2">
+<h2><a href="#completion">##</a> Completion</h2>
+<figure>
+<img src="images/autocomplete.mov.gif" alt="" /><figcaption><a href="https://github.com/kdheepak/dotfiles/blob/9f2f76877e0b6ace32c109d95e206ee9f1851193/vimrc#L648">vim.lsp.omnifunc</a></figcaption>
+</figure>
+</section>
+<section id="documentation" class="level2">
+<h2><a href="#documentation">##</a> Documentation</h2>
+<figure>
+<img src="images/documentation.mov.gif" alt="" /><figcaption><a href="https://github.com/kdheepak/dotfiles/blob/9f2f76877e0b6ace32c109d95e206ee9f1851193/vimrc#L971">vim.lsp.buf.hover</a></figcaption>
+</figure>
+</section>
+<section id="jump-to-definition" class="level2">
+<h2><a href="#jump-to-definition">##</a> Jump to definition</h2>
+<figure>
+<img src="images/jumptodefinition.mov.gif" alt="" /><figcaption><a href="https://github.com/kdheepak/dotfiles/blob/9f2f76877e0b6ace32c109d95e206ee9f1851193/vimrc#L968">vim.lsp.buf.definition</a></figcaption>
+</figure>
+</section>
+<section id="linting" class="level2">
+<h2><a href="#linting">##</a> Linting</h2>
+<figure>
+<img src="images/linting.mov.gif" alt="" /><figcaption><a href="https://github.com/kdheepak/dotfiles/blob/9f2f76877e0b6ace32c109d95e206ee9f1851193/vimrc#L992">vim.lsp.util.show_line_diagnostics</a></figcaption>
+</figure>
+</section>
+<section id="references" class="level2">
+<h2><a href="#references">##</a> References</h2>
+<figure>
+<img src="images/references.mov.gif" alt="" /><figcaption><a href="https://github.com/kdheepak/dotfiles/blob/9f2f76877e0b6ace32c109d95e206ee9f1851193/vimrc#L983">vim.lsp.buf.references</a></figcaption>
+</figure>
+</section>
+<section id="document-symbols" class="level2">
+<h2><a href="#document-symbols">##</a> Document symbols</h2>
+<figure>
+<img src="images/symbols.mov.gif" alt="" /><figcaption><a href="https://github.com/kdheepak/dotfiles/blob/9f2f76877e0b6ace32c109d95e206ee9f1851193/vimrc#L986">vim.lsp.buf.document_symbol</a></figcaption>
+</figure>
+</section>
+</section>
+<section id="install" class="level1">
+<h1><a href="#install">#</a> Install</h1>
+<p>If you’d like to use this you will need the following:</p>
+<ol type="1">
+<li><a href="https://github.com/neovim/neovim/releases/tag/nightly">neovim v0.5.0</a></li>
+<li><a href="https://github.com/neovim/nvim-lsp"><code>neovim/nvim-lsp</code></a></li>
+</ol>
+<p>The <code>neovim/nvim-lsp</code> repository contains language server configurations for a bunch of languages. Once you have <code>neovim/nvim-lsp</code> installed with your favorite plugin manager, you can run <code>:LspInstall julials</code>. That will download and install <code>LanguageServer.jl</code> and <code>SymbolServer.jl</code> into your global environment. You may also want <a href="https://github.com/JuliaEditorSupport/julia-vim"><code>JuliaEditorSupport/julia-vim</code></a> for syntax highlighting and other niceties.</p>
+<p>At the moment you’ll have to make some changes to <code>julials</code> file. The changes required are in this PR: <a href="https://github.com/neovim/nvim-lsp/pull/258" class="uri">https://github.com/neovim/nvim-lsp/pull/258</a>.</p>
+<p>And, at the moment neovim v0.5.0 isn’t released yet. You’ll have to get the latest commit on <code>master</code> and build from source, or download a release from the <a href="https://github.com/neovim/neovim/releases/tag/nightly"><code>nightly</code></a> tag on github. This also means that the lsp client is not stable yet. And there may be bugs<span><label for="mn-1" class="margin-toggle">&#8853;</label><input type="checkbox" id="mn-1" class="margin-toggle"/><span class="marginnote">One such bug that I ran into is that LanguageServer.jl does not support <code>textDocument/declaration</code> and <code>textDocument/typeDeclaration</code>, but the neovim LSP client still sends the request if the user makes that request call. This causes LanguageServer.jl to crash, and this looks like a silent failure from the user perspective. This is resolved in this PR: <a href="https://github.com/neovim/neovim/pull/12421" class="uri">https://github.com/neovim/neovim/pull/12421</a>.</span></span>.</p>
+<p>Here is a minimal <code>.vimrc</code> configuration that works with <code>NVIM v0.5.0-539-g91e41c857</code>.</p>
+<pre class="vim"><code>set nocompatible
+filetype off
+
+if empty(glob(&#39;~/.local/share/nvim/site/autoload/plug.vim&#39;))
+  silent !curl -fLo ~/.local/share/nvim/site/autoload/plug.vim --create-dirs
+    \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
+
+call plug#begin(&#39;~/.local/share/nvim/plugged&#39;)
+
+Plug &#39;JuliaEditorSupport/julia-vim&#39;
+Plug &#39;neovim/nvim-lsp&#39;
+
+call plug#end()
+
+lua &lt;&lt; EOF
+    require&#39;nvim_lsp&#39;.julials.setup{}
+EOF
+
+autocmd Filetype julia setlocal omnifunc=v:lua.vim.lsp.omnifunc
+
+nnoremap &lt;silent&gt; &lt;c-]&gt; &lt;cmd&gt;lua vim.lsp.buf.definition()&lt;CR&gt;
+nnoremap &lt;silent&gt; K     &lt;cmd&gt;lua vim.lsp.buf.hover()&lt;CR&gt;
+nnoremap &lt;silent&gt; gr    &lt;cmd&gt;lua vim.lsp.buf.references()&lt;CR&gt;
+nnoremap &lt;silent&gt; g0    &lt;cmd&gt;lua vim.lsp.buf.document_symbol()&lt;CR&gt;</code></pre>
+<p>Once you have this, you should be able to open a <code>.jl</code> file and <code>LanguageServer.jl</code> will start up! It may take some time for <code>SymbolServer.jl</code> to cache the symbols the first time you run it, so be prepared to wait for a while. You can type <code>:lua print(vim.lsp.get_log_path())&lt;CR&gt;</code> in neovim to get the path to the language server log file. When you see <code>[ Info: Received new data from Julia Symbol Server.</code> you should be good to go.</p>
+</section>
+<section id="bibliography" class="level1 unnumbered">
+<h1 class="unnumbered"><a href="#bibliography">#</a> References</h1>
+<div id="refs" class="references" role="doc-bibliography">
+<div id="ref-nonjedieglot">
+<p>[1] “LanguageServer.jl with emacs eglot.” [Online]. Available: <a href="https://github.com/non-Jedi/eglot-jl/">https://github.com/non-Jedi/eglot-jl/</a>.</p>
+</div>
+</div>
+</section>
+</section>
+<section>
+    <h1 id="comments"><a href="#comments">#</a> Comments</h1>
+    <script src="https://utteranc.es/client.js"
+        repo="kdheepak/blog"
+        issue-term="url"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+    </script>
+</section>
+</article>
+<script>
+var figures =
+  Array.prototype.slice.call(document.getElementsByClassName("figure"),0)
+  .concat(
+    Array.prototype.slice.call(document.getElementsByTagName("figure"),0));
+
+for (var i = 0; i < figures.length; i++) {
+  var figure = figures[i];
+  var imgs = figure.getElementsByTagName("img");
+  if (imgs.length > 0) {
+    classes = imgs[0].classList;
+    for (var j = 0; j < classes.length; j++) {
+        if (classes[j] === "fullwidth") {
+            figure.classList.add(classes[j]);
+        }
+    }
+  }
+}
+</script>
+
+<script>
+MathJax.Hub.Config({
+    jax: ["input/TeX","output/HTML-CSS"],
+    displayAlign: "left"
+});
+</script>
+<footer>
+    <p>
+    <a rel="license" href="https://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.
+    </p>
+    <p>
+    This site is <a href="https://github.com/kdheepak/blog">generated</a> using <a href="https://pandoc.org/">pandoc</a> and <a href="https://github.com/jez/tufte-pandoc-css">tufte-css</a>.
+    </p>
+    <p>
+      <a class="no-tufte-underline" href="https://github.com/kdheepak">
+        <img src="/images/Github-Mark-32px.png" alt="">
+      </a>
+      <a class="no-tufte-underline" href="/rss.xml">
+        <img src="/images/rss.svg" alt="">
+      </a>
+    </p>
+</footer>
+<script data-goatcounter="https://kdheepak.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>

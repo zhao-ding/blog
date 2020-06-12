@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <meta name="keywords" content="emacs, workflow, emacs daemon, terminal, tmux">
+  <meta name="description" content="A description of my emacs workflow">
+  <title>Emacs workflow — Using Emacs in the terminal</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="css/table.css">
+  <link rel="stylesheet" href="css/pandoc-solarized.css">
+  <link rel="stylesheet" href="css/pandoc.css">
+  <link rel="stylesheet" href="css/tufte.css">
+  <link rel="stylesheet" href="css/tufte-extra.css">
+  <link rel="stylesheet" href="css/latex.css">
+  <link rel="stylesheet" href="css/table.css">
+  <link rel="stylesheet" href="css/custom.css">
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<article>
+<header>
+<h1 class="title"><a class="home" href="/">~/</a> Emacs workflow — Using Emacs in the terminal</h1>
+<p class="subtitle sourceurl">
+ <a class="sourceurl" target="_blank" href="https://github.com/kdheepak/blog/blob/287f09217b83a30c1d99252d8995c86ef82285ed/content/15-emacs-workflow.md">
+    Sun, Jul 26, 2015
+ </a>
+</p>
+</header>
+<section>
+<p>I use the command line a lot, frequently editing files locally or remotely. Up until now, I’ve been using <a href="vim-tmux-zsh.html">vim with tmux and zsh</a>. I’ve recently been experimenting with emacs and have been trying to get it to work well inplace of vim. I personally think the author of <a href="https://mjwall.com/blog/2013/10/04/how-i-use-emacs/">this post</a> nailed it regarding emacs workflow. I’ve only made minor modifications to get it to suit my requirements.</p>
+<p>I’ve created a separate script called ess (emacsserverstart) added a <code>&amp;</code> at the end of the emacs script to get it to run in the background.</p>
+<p>/usr/local/bin/ess</p>
+<pre><code>#!/bin/zsh
+/Applications/Emacs.app/Contents/MacOS/Emacs &amp;</code></pre>
+<p>/usr/local/bin/emacs</p>
+<pre><code>#!/bin/zsh
+/Applications/Emacs.app/Contents/MacOS/Emacs &quot;$@&quot;</code></pre>
+<p>I’ve found that when using emacsclient connecting to <code>emacs --daemon</code> renders certain things differently, as compared to opening emacs, starting a server and connecting to that instead. I also have <code>(server-start)</code> in my .emacs file.</p>
+<p>The following script connects a emacsclient to an already existing emacs server. If a server does not exist, it starts a daemon and then connects to it. This is done using the <code>-a ""</code> flag, which allows you to set an alternate editor. If no editor it set it defaults to running a daemon. It also shifts focus to the emacsclient after it opens.</p>
+<p>/usr/local/bin/ec</p>
+<pre><code>#!/bin/zsh
+
+# This script starts emacs daemon if it is not running, opens whatever file
+# you pass in and changes the focus to emacs.  Without any arguments, it just
+# opens the current buffer or *scratch* if nothing else is open.  The following
+# example will open ~/.bashrc
+
+# ec ~/.bashrc
+
+# You can also pass it multiple files, it will open them all.  Unbury-buffer
+# will cycle through those files in order
+
+# The compliment to the script is et, which opens emacs in the terminal
+# attached to a daemon
+
+# If you want to execute elisp, pass in -e whatever.
+# You may also want to stop the output from returning to the terminal, like
+# ec -e &quot;(message \&quot;Hello\&quot;)&quot; &gt; /dev/null
+
+# emacsclient options for reference
+# -a &quot;&quot; starts emacs daemon and reattaches
+# -c creates a new frame
+# -n returns control back to the terminal
+# -e eval the script
+
+# Number of current visible frames,
+# Emacs daemon always has a visible frame called F1
+visible_frames() {
+  emacsclient -a &quot;&quot; -e &#39;(length (visible-frame-list))&#39;
+}
+
+change_focus() {
+  emacsclient -n -e &quot;(select-frame-set-input-focus (selected-frame))&quot; &gt; /dev/null
+}
+
+
+# try switching to the frame incase it is just minimized
+# will start a server if not running
+test &quot;$(visible_frames)&quot; -eq &quot;1&quot; &amp;&amp; change_focus
+
+if [ &quot;$(visible_frames)&quot; -lt  &quot;2&quot; ]; then # need to create a frame
+  # -c $@ with no args just opens the scratch buffer
+  emacsclient -n -c &quot;$@&quot; &amp;&amp; change_focus
+else # there is already a visible frame besides the daemon, so
+  change_focus
+  # -n $@ errors if there are no args
+  test  &quot;$#&quot; -ne &quot;0&quot; &amp;&amp; emacsclient -n &quot;$@&quot;
+fi</code></pre>
+<p>This script opens an emacsclient in the terminal and connects it to a running server. The <code>-t</code> flag opens it in the terminal.</p>
+<p>/usr/local/bin/et</p>
+<pre><code>#!/bin/zsh
+
+# Makes sure emacs daemon is running and opens the file in Emacs in
+# the terminal.
+
+# If you want to execute elisp, use -e whatever, like so
+
+# et -e &quot;(message \&quot;Word up\&quot;)&quot;
+
+# You may want to redirect that to /dev/null if you don&#39;t want the
+# return to printed on the terminal.  Also, just echoing a message
+# may not be visible if Emacs then gives you a message about what
+# to do when do with the frame
+
+# The compliment to this script is ec
+
+# Emacsclient option reference
+# -a &quot;&quot; starts emacs daemon and reattaches
+# -t starts in terminal, since I won&#39;t be using the gui
+# can also pass in -n if you want to have the shell return right away
+
+exec emacsclient -a &quot;&quot; -t &quot;$@&quot;</code></pre>
+<p>This following scripts stops the emacs server.</p>
+<p>/usr/local/bin/es</p>
+<pre><code>#!/bin/zsh
+
+# simple script to shutdown the running Emacs daemon
+
+# emacsclient options for reference
+# -a Alternate editor, runs bin/false in this case
+# -e eval the script
+
+# If the server-process is bound and the server is in a good state, then kill
+# the server
+
+server_ok() {
+  emacsclient -a &quot;false&quot; -e &quot;(boundp &#39;server-process)&quot;
+}
+
+if [ &quot;t&quot; == &quot;$(server_ok)&quot; ]; then
+  echo &quot;Shutting down Emacs server&quot;
+  # wasn&#39;t removing emacs from ALT-TAB on mac
+  # emacsclient -e &quot;(server-force-delete)&quot;
+  emacsclient -e &#39;(spacemacs/kill-emacs)&#39;
+else
+  echo &quot;Emacs server not running&quot;
+fi</code></pre>
+</section>
+<section>
+    <h1 id="comments"><a href="#comments">#</a> Comments</h1>
+    <script src="https://utteranc.es/client.js"
+        repo="kdheepak/blog"
+        issue-term="url"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+    </script>
+</section>
+</article>
+<script>
+var figures =
+  Array.prototype.slice.call(document.getElementsByClassName("figure"),0)
+  .concat(
+    Array.prototype.slice.call(document.getElementsByTagName("figure"),0));
+
+for (var i = 0; i < figures.length; i++) {
+  var figure = figures[i];
+  var imgs = figure.getElementsByTagName("img");
+  if (imgs.length > 0) {
+    classes = imgs[0].classList;
+    for (var j = 0; j < classes.length; j++) {
+        if (classes[j] === "fullwidth") {
+            figure.classList.add(classes[j]);
+        }
+    }
+  }
+}
+</script>
+
+<script>
+MathJax.Hub.Config({
+    jax: ["input/TeX","output/HTML-CSS"],
+    displayAlign: "left"
+});
+</script>
+<footer>
+    <p>
+    <a rel="license" href="https://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.
+    </p>
+    <p>
+    This site is <a href="https://github.com/kdheepak/blog">generated</a> using <a href="https://pandoc.org/">pandoc</a> and <a href="https://github.com/jez/tufte-pandoc-css">tufte-css</a>.
+    </p>
+    <p>
+      <a class="no-tufte-underline" href="https://github.com/kdheepak">
+        <img src="/images/Github-Mark-32px.png" alt="">
+      </a>
+      <a class="no-tufte-underline" href="/rss.xml">
+        <img src="/images/rss.svg" alt="">
+      </a>
+    </p>
+</footer>
+<script data-goatcounter="https://kdheepak.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>

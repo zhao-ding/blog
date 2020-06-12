@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <meta name="description" content="OSX is more customizable that you think. Here are a bunch of tweaks that I found useful.">
+  <title>Mac OSX Tweaks</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="css/table.css">
+  <link rel="stylesheet" href="css/pandoc-solarized.css">
+  <link rel="stylesheet" href="css/pandoc.css">
+  <link rel="stylesheet" href="css/tufte.css">
+  <link rel="stylesheet" href="css/tufte-extra.css">
+  <link rel="stylesheet" href="css/latex.css">
+  <link rel="stylesheet" href="css/table.css">
+  <link rel="stylesheet" href="css/custom.css">
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<article>
+<header>
+<h1 class="title"><a class="home" href="/">~/</a> Mac OSX Tweaks</h1>
+<p class="subtitle sourceurl">
+ <a class="sourceurl" target="_blank" href="https://github.com/kdheepak/blog/blob/287f09217b83a30c1d99252d8995c86ef82285ed/content/06-mac-tweaks.md">
+    Sun, Mar 22, 2015
+ </a>
+</p>
+</header>
+<section>
+<section id="update" class="level1">
+<h1><a href="#update">#</a> Update</h1>
+<p>I’ve decided to maintain a repo <a href="https://github.com/kdheepak/dotfiles/blob/master/.osx">here</a> instead.</p>
+<hr />
+</section>
+<section id="general-ui" class="level1">
+<h1><a href="#general-ui">#</a> General UI</h1>
+<pre><code># Disable Dashboard
+defaults write com.apple.dashboard mcx-disabled -bool true
+
+# Don’t show Dashboard as a Space
+defaults write com.apple.dock dashboard-in-overlay -bool true
+
+# disable automatic spell checking
+defaults write -g NSAllowContinuousSpellChecking -bool false
+
+# don&#39;t treat period or colon as part of words
+# en_US_POSIX corresponds to the &quot;United States (Computer)&quot; setting that was shown in System Preferences in 10.8 and earlier
+defaults write -g AppleTextBreakLocale en_US_POSIX
+
+# Disable the sound effects on boot
+sudo nvram SystemAudioVolume=&quot; &quot;</code></pre>
+</section>
+<section id="disks" class="level1">
+<h1><a href="#disks">#</a> Disks</h1>
+<pre><code># Disks: disable Time Machine prompts
+defaults write com.apple.TimeMachine DoNotOfferNewDisksForBackup -bool true
+
+# Disks: disable local Time Machine backups
+hash tmutil &amp;&gt; /dev/null &amp;&amp; sudo tmutil disablelocal
+
+# Disks: disable disk image verification
+# defaults write com.apple.frameworks.diskimages skip-verify -bool true
+# defaults write com.apple.frameworks.diskimages skip-verify-locked -bool true
+# defaults write com.apple.frameworks.diskimages skip-verify-remote -bool true
+
+# don&#39;t save .DS_Store files on network volumes
+defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
+
+# Expand save panel by default
+defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool true
+
+# Don’t automatically rearrange Spaces based on most recent use
+defaults write com.apple.dock mru-spaces -bool false</code></pre>
+</section>
+<section id="keyboard" class="level1">
+<h1><a href="#keyboard">#</a> Keyboard</h1>
+<pre><code># Set a blazingly fast keyboard repeat rate
+defaults write NSGlobalDomain KeyRepeat -int 0</code></pre>
+</section>
+<section id="finder" class="level1">
+<h1><a href="#finder">#</a> Finder</h1>
+<pre><code># Disable automatic termination of inactive apps
+defaults write NSGlobalDomain NSDisableAutomaticTermination -bool true
+
+# Finder: disable window animations and Get Info animations
+defaults write com.apple.finder DisableAllAnimations -bool true
+
+# Finder: show all filename extensions
+defaults write NSGlobalDomain AppleShowAllExtensions -bool true
+
+# Disable the warning when changing a file extension
+defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
+
+# Save to disk (not to iCloud) by default
+defaults write NSGlobalDomain NSDocumentSaveNewDocumentsToCloud -bool false
+
+# Finder: disable window and Get Info animations
+defaults write com.apple.finder DisableAllAnimations -bool true
+
+# Finder: show the ~/Library folder (in OS X Lion)
+chflags nohidden ~/Library
+
+# Finder: empty Trash securely by default
+defaults write com.apple.finder EmptyTrashSecurely -bool true</code></pre>
+</section>
+<section id="dock-hot-corners" class="level1">
+<h1><a href="#dock-hot-corners">#</a> Dock &amp; hot corners</h1>
+<pre><code># Autohide the Dock
+defaults write com.apple.dock autohide -bool true
+
+# Magnify Dock icons on hover
+defaults write com.apple.dock magnification -bool false</code></pre>
+</section>
+<section id="panels" class="level1">
+<h1><a href="#panels">#</a> Panels</h1>
+<pre><code># Panels: expand save panel by default
+defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool true
+
+# Panels: expand print panel by default
+defaults write NSGlobalDomain PMPrintingExpandedStateForPrint -bool true
+
+# Panels: disable the “Are you sure you want to open this application?” dialog
+defaults write com.apple.LaunchServices LSQuarantine -bool false
+
+# Panels: enable full keyboard access for all controls (e.g. enable Tab in modal dialogs)
+defaults write NSGlobalDomain AppleKeyboardUIMode -int 3</code></pre>
+</section>
+<section id="screen" class="level1">
+<h1><a href="#screen">#</a> Screen</h1>
+<pre><code># Screen: save screenshots to the desktop
+defaults write com.apple.screencapture location -string &quot;$HOME/Desktop&quot;
+
+# Screen: disable shadow in screenshots
+defaults write com.apple.screencapture disable-shadow -bool true</code></pre>
+</section>
+<section id="misc" class="level1">
+<h1><a href="#misc">#</a> Misc</h1>
+<pre><code># Misc: only use UTF-8 in Terminal.app
+defaults write com.apple.terminal StringEncodings -array 4
+
+# Misc: disable Dictionary results
+defaults write com.apple.spotlight DictionaryLookupEnabled -bool false
+
+# Misc: disable auto-correct
+defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false</code></pre>
+<!---
+{% comment %}
+for app in "Dashboard" "Dock" "Finder" "SystemUIServer" "Terminal" "iTunes"; do
+    killall "$app" > /dev/null 2>&1
+done
+{% uncomment %}
+-->
+</section>
+</section>
+<section>
+    <h1 id="comments"><a href="#comments">#</a> Comments</h1>
+    <script src="https://utteranc.es/client.js"
+        repo="kdheepak/blog"
+        issue-term="url"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+    </script>
+</section>
+</article>
+<script>
+var figures =
+  Array.prototype.slice.call(document.getElementsByClassName("figure"),0)
+  .concat(
+    Array.prototype.slice.call(document.getElementsByTagName("figure"),0));
+
+for (var i = 0; i < figures.length; i++) {
+  var figure = figures[i];
+  var imgs = figure.getElementsByTagName("img");
+  if (imgs.length > 0) {
+    classes = imgs[0].classList;
+    for (var j = 0; j < classes.length; j++) {
+        if (classes[j] === "fullwidth") {
+            figure.classList.add(classes[j]);
+        }
+    }
+  }
+}
+</script>
+
+<script>
+MathJax.Hub.Config({
+    jax: ["input/TeX","output/HTML-CSS"],
+    displayAlign: "left"
+});
+</script>
+<footer>
+    <p>
+    <a rel="license" href="https://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.
+    </p>
+    <p>
+    This site is <a href="https://github.com/kdheepak/blog">generated</a> using <a href="https://pandoc.org/">pandoc</a> and <a href="https://github.com/jez/tufte-pandoc-css">tufte-css</a>.
+    </p>
+    <p>
+      <a class="no-tufte-underline" href="https://github.com/kdheepak">
+        <img src="/images/Github-Mark-32px.png" alt="">
+      </a>
+      <a class="no-tufte-underline" href="/rss.xml">
+        <img src="/images/rss.svg" alt="">
+      </a>
+    </p>
+</footer>
+<script data-goatcounter="https://kdheepak.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>

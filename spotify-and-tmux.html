@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <meta name="keywords" content="tmux, spotify, powerline">
+  <meta name="description" content="Show current spotify track in tmux">
+  <title>Spotify and tmux</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="css/table.css">
+  <link rel="stylesheet" href="css/pandoc-solarized.css">
+  <link rel="stylesheet" href="css/pandoc.css">
+  <link rel="stylesheet" href="css/tufte.css">
+  <link rel="stylesheet" href="css/tufte-extra.css">
+  <link rel="stylesheet" href="css/latex.css">
+  <link rel="stylesheet" href="css/table.css">
+  <link rel="stylesheet" href="css/custom.css">
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<article>
+<header>
+<h1 class="title"><a class="home" href="/">~/</a> Spotify and tmux</h1>
+<p class="subtitle sourceurl">
+ <a class="sourceurl" target="_blank" href="https://github.com/kdheepak/blog/blob/287f09217b83a30c1d99252d8995c86ef82285ed/content/21-spotify-tmux.md">
+    Sun, Sep 20, 2015
+ </a>
+</p>
+</header>
+<section>
+<p>Create a file named tmux-spotify-info and place it in a directory that in your <code>$PATH</code>. Add the following snippet of code into the file and make sure it is executable.</p>
+<pre><code>#!/usr/bin/env osascript
+# Returns the current playing song in Spotify for OSX
+
+tell application &quot;Spotify&quot;
+  if it is running then
+    if player state is playing then
+      set track_name to name of current track
+      set artist_name to artist of current track
+
+      &quot;#[fg=colour39,nobold]#[fg=colour16, bg=colour39, nobold] &quot; &amp; artist_name &amp; &quot; - &quot; &amp; track_name &amp; &quot; #[bg=colour39]&quot;
+    end if
+  end if
+end tell</code></pre>
+<p>Add this to the end of ~/.tmux.conf</p>
+<pre><code># Bad Wolf by Steve Losh
+# Modified by Dheepak Krishnamurthy
+# =====================
+set -g status-fg white
+set -g status-bg colour234
+# set -g status-bg default #set for transparent background
+set -g window-status-activity-attr bold
+set -g pane-border-fg colour245
+set -g pane-active-border-fg colour39
+set -g message-fg colour16
+set -g message-bg colour221
+set -g message-attr bold
+# Custom status bar
+# Powerline
+set -g status-left-length 32
+set -g status-right-length 150
+set -g status-interval 5
+# Lets add the current weather to our status bar—why? Well Why the french-toast not?
+set -g status-left &#39;#[fg=colour16,bg=colour254,bold] #S #[fg=colour254,bg=colour238,nobold]#[fg=colour15,bg=colour238,bold] #(weathermajig boulder --short) #[fg=colour238,bg=colour234,nobold]&#39;
+set -g status-right &#39;%R #[fg=colour238,nobold]#[fg=colour254, bg=colour238] %d %b #(tmux-spotify-info)#[fg=colour254,nobold]#[fg=colour16,bg=colour254,bold] #h &#39;
+set -g window-status-format &quot;#[fg=white,bg=colour234] #I #W &quot;
+set -g window-status-current-format &quot;#[fg=colour234,bg=colour39]#[fg=colour16,bg=colour39,noreverse,bold] #I ❭ #W #[fg=colour39,bg=colour234,nobold]&quot;</code></pre>
+<p>And your favourite song will be listed in your tmux powerline! You can change the colours by playing the values above.</p>
+</section>
+<section>
+    <h1 id="comments"><a href="#comments">#</a> Comments</h1>
+    <script src="https://utteranc.es/client.js"
+        repo="kdheepak/blog"
+        issue-term="url"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+    </script>
+</section>
+</article>
+<script>
+var figures =
+  Array.prototype.slice.call(document.getElementsByClassName("figure"),0)
+  .concat(
+    Array.prototype.slice.call(document.getElementsByTagName("figure"),0));
+
+for (var i = 0; i < figures.length; i++) {
+  var figure = figures[i];
+  var imgs = figure.getElementsByTagName("img");
+  if (imgs.length > 0) {
+    classes = imgs[0].classList;
+    for (var j = 0; j < classes.length; j++) {
+        if (classes[j] === "fullwidth") {
+            figure.classList.add(classes[j]);
+        }
+    }
+  }
+}
+</script>
+
+<script>
+MathJax.Hub.Config({
+    jax: ["input/TeX","output/HTML-CSS"],
+    displayAlign: "left"
+});
+</script>
+<footer>
+    <p>
+    <a rel="license" href="https://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.
+    </p>
+    <p>
+    This site is <a href="https://github.com/kdheepak/blog">generated</a> using <a href="https://pandoc.org/">pandoc</a> and <a href="https://github.com/jez/tufte-pandoc-css">tufte-css</a>.
+    </p>
+    <p>
+      <a class="no-tufte-underline" href="https://github.com/kdheepak">
+        <img src="/images/Github-Mark-32px.png" alt="">
+      </a>
+      <a class="no-tufte-underline" href="/rss.xml">
+        <img src="/images/rss.svg" alt="">
+      </a>
+    </p>
+</footer>
+<script data-goatcounter="https://kdheepak.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>

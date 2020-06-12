@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <meta name="keywords" content="python, acaconda, conda, environment, pip, conda vs pip">
+  <meta name="description" content="Use conda env to manage packages">
+  <title>Using conda to manage packages</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="css/table.css">
+  <link rel="stylesheet" href="css/pandoc-solarized.css">
+  <link rel="stylesheet" href="css/pandoc.css">
+  <link rel="stylesheet" href="css/tufte.css">
+  <link rel="stylesheet" href="css/tufte-extra.css">
+  <link rel="stylesheet" href="css/latex.css">
+  <link rel="stylesheet" href="css/table.css">
+  <link rel="stylesheet" href="css/custom.css">
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<article>
+<header>
+<h1 class="title"><a class="home" href="/">~/</a> Using conda to manage packages</h1>
+<p class="subtitle sourceurl">
+ <a class="sourceurl" target="_blank" href="https://github.com/kdheepak/blog/blob/287f09217b83a30c1d99252d8995c86ef82285ed/content/24-conda-package-manager.md">
+    Fri, Dec 25, 2015
+ </a>
+</p>
+</header>
+<section>
+<section id="why-use-conda" class="level1">
+<h1><a href="#why-use-conda">#</a> Why use conda</h1>
+<p>The following quote is from Conda’s github page <span class="citation" data-cites="noauthor_conda/conda_nodate">[<a href="#ref-noauthor_conda/conda_nodate" role="doc-biblioref">1</a>]</span></p>
+<blockquote>
+<p>Conda is a cross-platform, Python-agnostic binary package manager. It is the package manager used by Anaconda installations, but it may be used for other systems as well. Conda makes environments first-class citizens, making it easy to create independent environments even for C libraries. Conda is written entirely in Python, and is BSD licensed open source.</p>
+</blockquote>
+<p>The main advantage of using conda to manage your packages and environment is that it will work across platforms. Conda also uses hard linking, so it is inexpensive to create multiple copies of the same package</p>
+</section>
+<section id="how-to" class="level1">
+<h1><a href="#how-to">#</a> How to</h1>
+<p>One simple way to start is to first specify a <code>environment.yml</code> file</p>
+<pre><code># environment.yml
+name: psst-env
+dependencies:
+- python
+- nose
+- numpy
+- pandas
+- pip:
+    - pyomo</code></pre>
+<p>The name of the environment can be changed. Activate the environment by using the following.</p>
+<pre><code>source activate psst-env</code></pre>
+<p>Then you can create the environment by</p>
+<pre><code>conda env create</code></pre>
+<p>You can update the environment after adding a package to <code>environment.yml</code> by using the following</p>
+<pre><code>conda env update</code></pre>
+<p>Alternatively, you can create a new empty environment by using either one of the following</p>
+<pre><code>conda create -n pelican-env python=2
+conda create --name pelican-env python=2</code></pre>
+<p>In this case, <code>pelican-env</code> is the name of the environment. You can follow the name of the environment with all the packages you want separated by spaces. You must have atleast one package to create a environment.</p>
+<p>After the environment is created, you can source the environment :</p>
+<pre><code>source activate pelican-env</code></pre>
+<p>You can install packages here using one of the following :</p>
+<pre><code>conda install &lt;PACKAGE-NAME&gt;</code></pre>
+<p>When you have set up the environment and would like to share it, you can run the following to generate a .yml file</p>
+<pre><code>conda env export</code></pre>
+<p>I like to update by <code>environment.yml</code> by running the following</p>
+<pre><code>conda env export &gt; environment.yml</code></pre>
+</section>
+<section id="bibliography" class="level1 unnumbered">
+<h1 class="unnumbered"><a href="#bibliography">#</a> References</h1>
+<div id="refs" class="references" role="doc-bibliography">
+<div id="ref-noauthor_conda/conda_nodate">
+<p>[1] “Conda/conda.” [Online]. Available: <a href="https://github.com/conda/conda">https://github.com/conda/conda</a>.</p>
+</div>
+</div>
+</section>
+</section>
+<section>
+    <h1 id="comments"><a href="#comments">#</a> Comments</h1>
+    <script src="https://utteranc.es/client.js"
+        repo="kdheepak/blog"
+        issue-term="url"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+    </script>
+</section>
+</article>
+<script>
+var figures =
+  Array.prototype.slice.call(document.getElementsByClassName("figure"),0)
+  .concat(
+    Array.prototype.slice.call(document.getElementsByTagName("figure"),0));
+
+for (var i = 0; i < figures.length; i++) {
+  var figure = figures[i];
+  var imgs = figure.getElementsByTagName("img");
+  if (imgs.length > 0) {
+    classes = imgs[0].classList;
+    for (var j = 0; j < classes.length; j++) {
+        if (classes[j] === "fullwidth") {
+            figure.classList.add(classes[j]);
+        }
+    }
+  }
+}
+</script>
+
+<script>
+MathJax.Hub.Config({
+    jax: ["input/TeX","output/HTML-CSS"],
+    displayAlign: "left"
+});
+</script>
+<footer>
+    <p>
+    <a rel="license" href="https://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.
+    </p>
+    <p>
+    This site is <a href="https://github.com/kdheepak/blog">generated</a> using <a href="https://pandoc.org/">pandoc</a> and <a href="https://github.com/jez/tufte-pandoc-css">tufte-css</a>.
+    </p>
+    <p>
+      <a class="no-tufte-underline" href="https://github.com/kdheepak">
+        <img src="/images/Github-Mark-32px.png" alt="">
+      </a>
+      <a class="no-tufte-underline" href="/rss.xml">
+        <img src="/images/rss.svg" alt="">
+      </a>
+    </p>
+</footer>
+<script data-goatcounter="https://kdheepak.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>

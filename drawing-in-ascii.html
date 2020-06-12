@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <meta name="keywords" content="ascii, svgbob, pandoc, filter, lua, circuit, diagrams">
+  <meta name="description" content="Drawing ascii diagrams and rendering them to svg using svgbob, pandoc and lua filters">
+  <title>Drawing in ASCII</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="css/table.css">
+  <link rel="stylesheet" href="css/pandoc-solarized.css">
+  <link rel="stylesheet" href="css/pandoc.css">
+  <link rel="stylesheet" href="css/tufte.css">
+  <link rel="stylesheet" href="css/tufte-extra.css">
+  <link rel="stylesheet" href="css/latex.css">
+  <link rel="stylesheet" href="css/custom.css">
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<article>
+<header>
+<h1 class="title"><a class="home" href="/">~/</a> Drawing in ASCII</h1>
+<p class="subtitle sourceurl">
+ <a class="sourceurl" target="_blank" href="https://github.com/kdheepak/blog/blob/287f09217b83a30c1d99252d8995c86ef82285ed/content/33-drawing-ascii-circuit-diagrams.md">
+    Fri, Jun 05, 2020
+ </a>
+</p>
+</header>
+<section>
+<p>Here is a simple 3-bus circuit diagram using text / ascii.</p>
+<pre><code>           |           +-----------+           |
+           +-----------+           +-----------+
+           |           +-----------+           |
+     +-----+1               y12               2+------+
+     |     |                                   |      |
+     |     +-+                               +-+      |
+   .-+-.   |  \                             /  |    .-+-.
+   |   |       \                           /        |   |
+   |   |y1    .-+-.                     .-+-.     y2|   |
+   &#39;-+-&#39;       \   \ y13          y23  /   /        &#39;-+-&#39;
+     |          \   \                 /   /           |
+     |           &#39;-+-&#39;               &#39;-+-&#39;            |
+  -------           \                 /            -------
+    ---              +               +               ---
+     -               |        3      |                -
+                  ---+-------+-------+---
+                             |
+                           .-+-.
+                           |   |
+                           |   |y3
+                           &#39;-+-&#39;
+                             |
+                             |
+                          -------
+                           -----
+                             -</code></pre>
+<p>We can define a lua filter that takes any code block that has the language defined as <code>render_svgbob</code>, and passes the text inside that code block to <a href="https://github.com/ivanceras/svgbob">svgbob</a>.</p>
+<pre><code>```render_svgbob
+text here will be passed to svgbob
+```</code></pre>
+<p>This is what it would look like when rendered on this blog:</p>
+<p><svg height="432" width="472" xmlns="http://www.w3.org/2000/svg">
+    <style>line, path, circle,rect,polygon {
+                          stroke: black;
+                          stroke-width: 2;
+                          stroke-opacity: 1;
+                          fill-opacity: 1;
+                          stroke-linecap: round;
+                          stroke-linejoin: miter;
+                        }
+
+                    text {
+                        fill: black;
+                        }
+                        rect.backdrop{
+                            stroke: none;
+                            fill: transparent;
+                        }
+                        .broken{
+                            stroke-dasharray: 8;
+                        }
+                        .filled{
+                            fill: black;
+                        }
+                        .bg_filled{
+                            fill: transparent;
+                        }
+                        .nofill{
+                            fill: transparent;
+                        }
+
+                        text {
+                         font-family: monospace;
+                         font-size: 14px;
+                        }
+
+                        .end_marked_arrow{
+                            marker-end: url(#arrow);
+                         }
+                        .start_marked_arrow{
+                            marker-start: url(#arrow);
+                         }
+
+                        .end_marked_diamond{
+                            marker-end: url(#diamond);
+                         }
+                        .start_marked_diamond{
+                            marker-start: url(#diamond);
+                         }
+
+                        .end_marked_circle{
+                            marker-end: url(#circle);
+                         }
+                        .start_marked_circle{
+                            marker-start: url(#circle);
+                         }
+
+                        .end_marked_open_circle{
+                            marker-end: url(#open_circle);
+                         }
+                        .start_marked_open_circle{
+                            marker-start: url(#open_circle);
+                         }
+
+                        .end_marked_big_open_circle{
+                            marker-end: url(#big_open_circle);
+                         }
+                        .start_marked_big_open_circle{
+                            marker-start: url(#big_open_circle);
+                         }
+
+                         
+                        </style>
+    <defs>
+        <marker id="arrow" markerHeight="7" markerWidth="7" orient="auto-start-reverse" refX="4" refY="2" viewBox="-2 -2 8 8">
+            <polygon points="0,0 0,4 4,2 0,0"></polygon>
+        </marker>
+        <marker id="diamond" markerHeight="7" markerWidth="7" orient="auto-start-reverse" refX="4" refY="2" viewBox="-2 -2 8 8">
+            <polygon points="0,2 2,0 4,2 2,4 0,2"></polygon>
+        </marker>
+        <marker id="circle" markerHeight="7" markerWidth="7" orient="auto-start-reverse" refX="4" refY="4" viewBox="0 0 8 8">
+            <circle class="filled" cx="4" cy="4" r="2"></circle>
+        </marker>
+        <marker id="open_circle" markerHeight="7" markerWidth="7" orient="auto-start-reverse" refX="4" refY="4" viewBox="0 0 8 8">
+            <circle class="bg_filled" cx="4" cy="4" r="2"></circle>
+        </marker>
+        <marker id="big_open_circle" markerHeight="7" markerWidth="7" orient="auto-start-reverse" refX="4" refY="4" viewBox="0 0 8 8">
+            <circle class="bg_filled" cx="4" cy="4" r="3"></circle>
+        </marker>
+    </defs>
+    <rect class="backdrop" height="432" width="472" x="0" y="0"></rect>
+    <text class="" x="98" y="60">1</text>
+    <text class="" x="226" y="60">y12</text>
+    <text class="" x="370" y="60">2</text>
+    <text class="" x="66" y="140">y1</text>
+    <text class="" x="402" y="140">y2</text>
+    <text class="" x="170" y="156">y13</text>
+    <line class="solid " x1="16" x2="72" y1="200" y2="200"></line>
+    <line class="solid " x1="408" x2="464" y1="200" y2="200"></line>
+    <line class="solid " x1="32" x2="56" y1="216" y2="216"></line>
+    <line class="solid " x1="424" x2="448" y1="216" y2="216"></line>
+    <line class="solid " x1="40" x2="48" y1="232" y2="232"></line>
+    <text class="" x="242" y="236">3</text>
+    <line class="solid " x1="432" x2="440" y1="232" y2="232"></line>
+    <text class="" x="258" y="316">y3</text>
+    <line class="solid " x1="208" x2="264" y1="376" y2="376"></line>
+    <line class="solid " x1="216" x2="256" y1="392" y2="392"></line>
+    <line class="solid " x1="232" x2="240" y1="408" y2="408"></line>
+    <text class="" x="274" y="156">y23</text>
+    <g>
+        <line class="solid" x1="92" x2="92" y1="0" y2="112"></line>
+        <line class="solid" x1="44" x2="92" y1="56" y2="56"></line>
+        <line class="solid" x1="44" x2="44" y1="56" y2="104"></line>
+        <line class="solid" x1="92" x2="108" y1="88" y2="88"></line>
+        <line class="solid" x1="108" x2="132" y1="88" y2="136"></line>
+        <line class="solid" x1="188" x2="284" y1="8" y2="8"></line>
+        <line class="solid" x1="188" x2="188" y1="8" y2="40"></line>
+        <line class="solid" x1="284" x2="284" y1="8" y2="40"></line>
+        <line class="solid" x1="92" x2="188" y1="24" y2="24"></line>
+        <line class="solid" x1="188" x2="284" y1="40" y2="40"></line>
+        <line class="solid" x1="380" x2="380" y1="0" y2="112"></line>
+        <line class="solid" x1="284" x2="380" y1="24" y2="24"></line>
+        <line class="solid" x1="380" x2="436" y1="56" y2="56"></line>
+        <line class="solid" x1="436" x2="436" y1="56" y2="104"></line>
+        <line class="solid" x1="364" x2="380" y1="88" y2="88"></line>
+        <line class="solid" x1="364" x2="340" y1="88" y2="136"></line>
+        <path class="nofill" d="M 32,104 A 4,4 0,0,0 28,108"></path>
+        <line class="solid" x1="28" x2="28" y1="108" y2="148"></line>
+        <line class="solid" x1="32" x2="56" y1="104" y2="104"></line>
+        <path class="nofill" d="M 56,104 A 4,4 0,0,1 60,108"></path>
+        <line class="solid" x1="60" x2="60" y1="108" y2="148"></line>
+        <path class="nofill" d="M 28,148 A 4,4 0,0,0 32,152"></path>
+        <line class="solid" x1="32" x2="56" y1="152" y2="152"></line>
+        <line class="solid" x1="44" x2="44" y1="152" y2="192"></line>
+        <path class="nofill" d="M 60,148 A 4,4 0,0,1 56,152"></path>
+        <path class="nofill" d="M 424,104 A 4,4 0,0,0 420,108"></path>
+        <line class="solid" x1="420" x2="420" y1="108" y2="148"></line>
+        <line class="solid" x1="424" x2="448" y1="104" y2="104"></line>
+        <path class="nofill" d="M 448,104 A 4,4 0,0,1 452,108"></path>
+        <line class="solid" x1="452" x2="452" y1="108" y2="148"></line>
+        <path class="nofill" d="M 420,148 A 4,4 0,0,0 424,152"></path>
+        <line class="solid" x1="424" x2="448" y1="152" y2="152"></line>
+        <line class="solid" x1="436" x2="436" y1="152" y2="192"></line>
+        <path class="nofill" d="M 452,148 A 4,4 0,0,1 448,152"></path>
+        <path class="nofill" d="M 120,136 A 3,3 0,0,0 118,140"></path>
+        <line class="solid" x1="118" x2="136" y1="140" y2="176"></line>
+        <line class="solid" x1="120" x2="144" y1="136" y2="136"></line>
+        <path class="nofill" d="M 144,136 A 8,8 0,0,1 150,140"></path>
+        <line class="solid" x1="150" x2="168" y1="140" y2="176"></line>
+        <line class="solid" x1="136" x2="138" y1="176" y2="180"></line>
+        <path class="nofill" d="M 138,180 A 8,8 0,0,0 144,184"></path>
+        <line class="solid" x1="144" x2="168" y1="184" y2="184"></line>
+        <line class="solid" x1="156" x2="168" y1="184" y2="208"></line>
+        <line class="solid" x1="168" x2="170" y1="176" y2="180"></line>
+        <path class="nofill" d="M 170,180 A 3,3 0,0,1 168,184"></path>
+        <line class="solid" x1="168" x2="172" y1="208" y2="216"></line>
+        <line class="solid" x1="172" x2="172" y1="216" y2="248"></line>
+        <path class="nofill" d="M 328,136 A 8,8 0,0,0 322,140"></path>
+        <line class="solid" x1="322" x2="304" y1="140" y2="176"></line>
+        <line class="solid" x1="328" x2="352" y1="136" y2="136"></line>
+        <path class="nofill" d="M 352,136 A 3,3 0,0,1 354,140"></path>
+        <line class="solid" x1="354" x2="336" y1="140" y2="176"></line>
+        <line class="solid" x1="304" x2="302" y1="176" y2="180"></line>
+        <path class="nofill" d="M 302,180 A 3,3 0,0,0 304,184"></path>
+        <line class="solid" x1="304" x2="328" y1="184" y2="184"></line>
+        <line class="solid" x1="316" x2="304" y1="184" y2="208"></line>
+        <line class="solid" x1="336" x2="334" y1="176" y2="180"></line>
+        <path class="nofill" d="M 334,180 A 8,8 0,0,1 328,184"></path>
+        <line class="solid" x1="304" x2="300" y1="208" y2="216"></line>
+        <line class="solid" x1="300" x2="300" y1="216" y2="248"></line>
+        <line class="solid" x1="144" x2="328" y1="248" y2="248"></line>
+        <line class="solid" x1="236" x2="236" y1="248" y2="280"></line>
+        <path class="nofill" d="M 224,280 A 4,4 0,0,0 220,284"></path>
+        <line class="solid" x1="220" x2="220" y1="284" y2="324"></line>
+        <line class="solid" x1="224" x2="248" y1="280" y2="280"></line>
+        <path class="nofill" d="M 248,280 A 4,4 0,0,1 252,284"></path>
+        <line class="solid" x1="252" x2="252" y1="284" y2="324"></line>
+        <path class="nofill" d="M 220,324 A 4,4 0,0,0 224,328"></path>
+        <line class="solid" x1="224" x2="248" y1="328" y2="328"></line>
+        <line class="solid" x1="236" x2="236" y1="328" y2="368"></line>
+        <path class="nofill" d="M 252,324 A 4,4 0,0,1 248,328"></path>
+    </g>
+</svg>
+</p>
+</section>
+<section>
+    <h1 id="comments"><a href="#comments">#</a> Comments</h1>
+    <script src="https://utteranc.es/client.js"
+        repo="kdheepak/blog"
+        issue-term="url"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+    </script>
+</section>
+</article>
+<script>
+var figures =
+  Array.prototype.slice.call(document.getElementsByClassName("figure"),0)
+  .concat(
+    Array.prototype.slice.call(document.getElementsByTagName("figure"),0));
+
+for (var i = 0; i < figures.length; i++) {
+  var figure = figures[i];
+  var imgs = figure.getElementsByTagName("img");
+  if (imgs.length > 0) {
+    classes = imgs[0].classList;
+    for (var j = 0; j < classes.length; j++) {
+        if (classes[j] === "fullwidth") {
+            figure.classList.add(classes[j]);
+        }
+    }
+  }
+}
+</script>
+
+<script>
+MathJax.Hub.Config({
+    jax: ["input/TeX","output/HTML-CSS"],
+    displayAlign: "left"
+});
+</script>
+<footer>
+    <p>
+    <a rel="license" href="https://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.
+    </p>
+    <p>
+    This site is <a href="https://github.com/kdheepak/blog">generated</a> using <a href="https://pandoc.org/">pandoc</a> and <a href="https://github.com/jez/tufte-pandoc-css">tufte-css</a>.
+    </p>
+    <p>
+      <a class="no-tufte-underline" href="https://github.com/kdheepak">
+        <img src="/images/Github-Mark-32px.png" alt="">
+      </a>
+      <a class="no-tufte-underline" href="/rss.xml">
+        <img src="/images/rss.svg" alt="">
+      </a>
+    </p>
+</footer>
+<script data-goatcounter="https://kdheepak.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>

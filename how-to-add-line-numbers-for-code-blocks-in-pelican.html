@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <meta name="keywords" content="How to add line numbers for code blocks in Pelican">
+  <meta name="description" content="Brief tutorial on adding the right css for getting line numbering for code blocks in pelican …">
+  <title>How to add line numbers for code blocks in Pelican</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="css/table.css">
+  <link rel="stylesheet" href="css/pandoc-solarized.css">
+  <link rel="stylesheet" href="css/pandoc.css">
+  <link rel="stylesheet" href="css/tufte.css">
+  <link rel="stylesheet" href="css/tufte-extra.css">
+  <link rel="stylesheet" href="css/latex.css">
+  <link rel="stylesheet" href="css/table.css">
+  <link rel="stylesheet" href="css/custom.css">
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<article>
+<header>
+<h1 class="title"><a class="home" href="/">~/</a> How to add line numbers for code blocks in Pelican</h1>
+<p class="subtitle sourceurl">
+ <a class="sourceurl" target="_blank" href="https://github.com/kdheepak/blog/blob/287f09217b83a30c1d99252d8995c86ef82285ed/content/17-pelican-linenumbers.md">
+    Tue, Aug 18, 2015
+ </a>
+</p>
+</header>
+<section>
+<p>Update : I’ve removed line numbers because it is selected along with the code if someone wants to copy. I’ll post here if I find a better solution.</p>
+<p>I’ve found that line numbering with word wrap could only be achieved in Pelican by a certain set of steps. I’ve listed the CSS and the Plugin I’ve used to get that to work.</p>
+<p>Add the following lines in your theme.css</p>
+<pre><code>/* For use with the code_line-number_word-wrap_switcher_jquery.js Pelican plugin */
+code {
+    overflow: auto;
+    /* This uses `white-space: pre-wrap` to get elements within &lt;pre&gt; tags to wrap. Python, for code chunks within three backticks (```), doesn&#39;t wordwrap code lines by default, because they&#39;re within &lt;pre&gt; tags, which don&#39;t wrap by default. See https://github.com/github/markup/issues/168 , which is specifically about this parsing issue, even though that link&#39;s discussion is talking about GitHub. */
+    white-space: pre-wrap;       /* css-3 */
+    white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+    white-space: -pre-wrap;      /* Opera 4-6 */
+    white-space: -o-pre-wrap;    /* Opera 7 */
+    word-wrap: break-word;       /* Internet Explorer 5.5+ */
+}
+
+/* Following https://bililite.com/blog/2012/08/05/line-numbering-in-pre-elements/, use CSS to add line numbers to all spans that have the class &#39;code-line&#39; */
+
+.highlight pre {
+    counter-reset: linecounter;
+    padding-left: 2em;
+}
+.highlight pre span.code-line {
+    counter-increment: linecounter;
+    padding-left: 1em;
+    text-indent: -1em;
+    display: inline-block;
+}
+.highlight pre span.code-line:before {
+    content: counter(linecounter);
+    padding-right: 1em;
+    display: inline-block;
+    color: grey;
+    text-align: right;
+}</code></pre>
+<p>Then, we turn off the default linenums in codehilite. Also add the following pelican-plugin.</p>
+<pre><code>MD_EXTENSIONS = [&#39;fenced_code&#39;, &#39;codehilite(css_class=highlight, linenums=False)&#39;, ]
+
+PLUGINS = [&#39;better_codeblock_line_numbering&#39;]</code></pre>
+</section>
+<section>
+    <h1 id="comments"><a href="#comments">#</a> Comments</h1>
+    <script src="https://utteranc.es/client.js"
+        repo="kdheepak/blog"
+        issue-term="url"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+    </script>
+</section>
+</article>
+<script>
+var figures =
+  Array.prototype.slice.call(document.getElementsByClassName("figure"),0)
+  .concat(
+    Array.prototype.slice.call(document.getElementsByTagName("figure"),0));
+
+for (var i = 0; i < figures.length; i++) {
+  var figure = figures[i];
+  var imgs = figure.getElementsByTagName("img");
+  if (imgs.length > 0) {
+    classes = imgs[0].classList;
+    for (var j = 0; j < classes.length; j++) {
+        if (classes[j] === "fullwidth") {
+            figure.classList.add(classes[j]);
+        }
+    }
+  }
+}
+</script>
+
+<script>
+MathJax.Hub.Config({
+    jax: ["input/TeX","output/HTML-CSS"],
+    displayAlign: "left"
+});
+</script>
+<footer>
+    <p>
+    <a rel="license" href="https://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.
+    </p>
+    <p>
+    This site is <a href="https://github.com/kdheepak/blog">generated</a> using <a href="https://pandoc.org/">pandoc</a> and <a href="https://github.com/jez/tufte-pandoc-css">tufte-css</a>.
+    </p>
+    <p>
+      <a class="no-tufte-underline" href="https://github.com/kdheepak">
+        <img src="/images/Github-Mark-32px.png" alt="">
+      </a>
+      <a class="no-tufte-underline" href="/rss.xml">
+        <img src="/images/rss.svg" alt="">
+      </a>
+    </p>
+</footer>
+<script data-goatcounter="https://kdheepak.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>

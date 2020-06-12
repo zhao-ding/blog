@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <meta name="keywords" content="vim, tmux, zsh">
+  <meta name="description" content="I’ve not found a greater combination of tools than vim, tmux and zsh. I’ve detailed below some of the configuration …">
+  <title>Vim, tmux and zsh — the productivity trio</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="css/table.css">
+  <link rel="stylesheet" href="css/pandoc-solarized.css">
+  <link rel="stylesheet" href="css/pandoc.css">
+  <link rel="stylesheet" href="css/tufte.css">
+  <link rel="stylesheet" href="css/tufte-extra.css">
+  <link rel="stylesheet" href="css/latex.css">
+  <link rel="stylesheet" href="css/table.css">
+  <link rel="stylesheet" href="css/custom.css">
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<article>
+<header>
+<h1 class="title"><a class="home" href="/">~/</a> Vim, tmux and zsh — the productivity trio</h1>
+<p class="subtitle sourceurl">
+ <a class="sourceurl" target="_blank" href="https://github.com/kdheepak/blog/blob/287f09217b83a30c1d99252d8995c86ef82285ed/content/11-vim-tmux-zsh.md">
+    Sat, May 09, 2015
+ </a>
+</p>
+</header>
+<section>
+<p>I’ve not found a greater combination of tools than vim, tmux and zsh. I’ve detailed below some of the configuration to get it working the way I want it to.</p>
+<figure>
+<img src="/images/vim-tmux-zsh.png" alt="" /><figcaption>vim-tmux-zsh</figcaption>
+</figure>
+<section id="tmux" class="level2">
+<h2><a href="#tmux">##</a> tmux</h2>
+<pre><code># Change prefix key to `
+unbind C-b
+set -g prefix `
+bind-key ` send-prefix
+bind-key C-a set-option -g prefix C-a
+bind-key C-b set-option -g prefix `
+
+# we might need ` at some point, allow switching
+bind-key C-a set-option -g prefix C-a
+bind-key C-b set-option -g prefix `
+
+setw -g monitor-activity on
+set -g visual-activity on
+
+set-window-option -g window-status-current-bg yellow
+
+set -g mouse-resize-pane on
+set-option -g mouse-select-pane on
+set-option -g mouse-select-window on
+set-window-option -g mode-mouse on
+
+setw -g mode-mouse on
+set -g terminal-overrides &#39;xterm*:smcup@:rmcup@&#39;
+
+# set-option -g default-command &quot;reattach-to-user-namespace -l zsh&quot;
+
+# Use vim keybindings in copy mode
+setw -g mode-keys vi
+
+bind-key -t vi-copy v begin-selection
+bind-key -t vi-copy y copy-pipe &quot;reattach-to-user-namespace pbcopy&quot;
+
+unbind -t vi-copy Enter
+bind-key -t vi-copy Enter copy-pipe &quot;reattach-to-user-namespace pbcopy&quot;
+
+## Keep your finger on ctrl, or don&#39;t
+bind-key ^D detach-client
+
+## Pane resize in all four directions using vi bindings.
+## Can use these raw but I map them to shift-ctrl-&lt;h,j,k,l&gt; in iTerm.
+bind -r H resize-pane -L 5
+bind -r J resize-pane -D 5
+bind -r K resize-pane -U 5
+bind -r L resize-pane -R 5
+
+## Smart pane switching with awareness of vim splits.
+## Source: https://github.com/christoomey/vim-tmux-navigator
+bind -n C-h run &quot;(tmux display-message -p &#39;#{pane_current_command}&#39; | grep -iqE &#39;(^|\/)g?(view|vim?)(diff)?$&#39; &amp;&amp; tmux send-keys C-h) || tmux select-pane -L&quot;
+bind -n C-j run &quot;(tmux display-message -p &#39;#{pane_current_command}&#39; | grep -iqE &#39;(^|\/)g?(view|vim?)(diff)?$&#39; &amp;&amp; tmux send-keys C-j) || tmux select-pane -D&quot;
+bind -n C-k run &quot;(tmux display-message -p &#39;#{pane_current_command}&#39; | grep -iqE &#39;(^|\/)g?(view|vim?)(diff)?$&#39; &amp;&amp; tmux send-keys C-k) || tmux select-pane -U&quot;
+bind -n C-l run &quot;(tmux display-message -p &#39;#{pane_current_command}&#39; | grep -iqE &#39;(^|\/)g?(view|vim?)(diff)?$&#39; &amp;&amp; tmux send-keys C-l) || tmux select-pane -R&quot;
+bind -n C-\ run &quot;(tmux display-message -p &#39;#{pane_current_command}&#39; | grep -iqE &#39;(^|\/)g?(view|vim?)(diff)?$&#39; &amp;&amp; tmux send-keys &#39;C-\\&#39;) || tmux select-pane -l&quot;
+
+set -g default-terminal &quot;xterm&quot;
+
+## No escape time for vi mode
+set -sg escape-time 0
+
+## Screen like binding for last window
+unbind l
+bind C-a last-window
+
+## Bigger history
+set -g history-limit 10000
+
+## New windows/pane in $PWD
+bind c new-window -c &quot;#{pane_current_path}&quot;
+
+## force a reload of the config file
+unbind r
+bind r source-file ~/.tmux.conf \; display &quot;Reloaded!&quot;
+
+## Easy bindings for split
+unbind %
+bind | split-window -h  -c &quot;#{pane_current_path}&quot;
+bind - split-window -v  -c &quot;#{pane_current_path}&quot;
+
+#bind y run &#39;tmux save-buffer - | reattach-to-user-namespace pbcopy &#39;
+#bind C-y run &#39;tmux save-buffer - | reattach-to-user-namespace pbcopy &#39;
+
+# start window numbering at 1
+set -g base-index 1
+
+# start pane numbering at 1
+set -g pane-base-index 1
+
+bind-key -n C-S-Left swap-window -t -1
+bind-key -n C-S-Right swap-window -t +1
+
+## Here is a jewel of a bind which does the task of flipping the orientation of the current pane with the pane before it (in the ordering) -- I had a SO question on this and nobody answered.
+bind -n M-f move-pane -t &#39;.-&#39;
+bind M-f move-pane -t &#39;.-&#39;
+bind -n M-r move-pane -h -t &#39;.-&#39;
+bind M-r move-pane -h -t &#39;.-&#39;
+
+### Join windows: &lt;prefix&gt; s, &lt;prefix&gt; j
+bind-key j command-prompt -p &quot;join pane from:&quot;  &quot;join-pane -s &#39;%%&#39;&quot;
+bind-key s command-prompt -p &quot;send pane to:&quot;  &quot;join-pane -t &#39;%%&#39;&quot;</code></pre>
+</section>
+<section id="zsh" class="level2">
+<h2><a href="#zsh">##</a> zsh</h2>
+<pre><code># Path to your oh-my-zsh installation.
+export ZSH=/Users/dheepakkrishnamurthy/.oh-my-zsh
+
+ZSH_THEME=&quot;rawsyntax&quot;
+
+alias vim=&#39;mvim -v&#39;
+
+export TERM=xterm-256color
+
+source $ZSH/oh-my-zsh.sh</code></pre>
+</section>
+<section id="vim" class="level2">
+<h2><a href="#vim">##</a> vim</h2>
+<pre><code>Plugin &#39;altercation/vim-colors-solarized&#39;
+Plugin &#39;bling/vim-airline&#39;
+Plugin &#39;christoomey/vim-tmux-navigator&#39;
+Plugin &#39;fholgado/minibufexpl.vim&#39;
+Plugin &#39;honza/vim-snippets&#39;
+Plugin &#39;jeffkreeftmeijer/vim-numbertoggle&#39;
+Plugin &#39;morhetz/gruvbox&#39;
+Plugin &#39;plasticboy/vim-markdown&#39;
+Plugin &#39;scrooloose/nerdcommenter&#39;
+Plugin &#39;scrooloose/nerdtree&#39;
+Plugin &#39;searchcomplete&#39;
+Plugin &#39;sjl/gundo.vim&#39;
+Plugin &#39;tomasr/molokai&#39;
+Plugin &#39;tpope/vim-repeat&#39;
+Plugin &#39;tpope/vim-surround&#39;</code></pre>
+</section>
+</section>
+<section>
+    <h1 id="comments"><a href="#comments">#</a> Comments</h1>
+    <script src="https://utteranc.es/client.js"
+        repo="kdheepak/blog"
+        issue-term="url"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+    </script>
+</section>
+</article>
+<script>
+var figures =
+  Array.prototype.slice.call(document.getElementsByClassName("figure"),0)
+  .concat(
+    Array.prototype.slice.call(document.getElementsByTagName("figure"),0));
+
+for (var i = 0; i < figures.length; i++) {
+  var figure = figures[i];
+  var imgs = figure.getElementsByTagName("img");
+  if (imgs.length > 0) {
+    classes = imgs[0].classList;
+    for (var j = 0; j < classes.length; j++) {
+        if (classes[j] === "fullwidth") {
+            figure.classList.add(classes[j]);
+        }
+    }
+  }
+}
+</script>
+
+<script>
+MathJax.Hub.Config({
+    jax: ["input/TeX","output/HTML-CSS"],
+    displayAlign: "left"
+});
+</script>
+<footer>
+    <p>
+    <a rel="license" href="https://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.
+    </p>
+    <p>
+    This site is <a href="https://github.com/kdheepak/blog">generated</a> using <a href="https://pandoc.org/">pandoc</a> and <a href="https://github.com/jez/tufte-pandoc-css">tufte-css</a>.
+    </p>
+    <p>
+      <a class="no-tufte-underline" href="https://github.com/kdheepak">
+        <img src="/images/Github-Mark-32px.png" alt="">
+      </a>
+      <a class="no-tufte-underline" href="/rss.xml">
+        <img src="/images/rss.svg" alt="">
+      </a>
+    </p>
+</footer>
+<script data-goatcounter="https://kdheepak.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>

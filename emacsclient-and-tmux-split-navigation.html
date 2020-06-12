@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <meta name="keywords" content="emacsclient, terminal, workflow, tmux, split, navigation">
+  <meta name="description" content="I use the following set of lisps my .emacs to get seamless navigation between emacs splits and tmux panes …">
+  <title>Emacsclient and tmux split navigation</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="css/table.css">
+  <link rel="stylesheet" href="css/pandoc-solarized.css">
+  <link rel="stylesheet" href="css/pandoc.css">
+  <link rel="stylesheet" href="css/tufte.css">
+  <link rel="stylesheet" href="css/tufte-extra.css">
+  <link rel="stylesheet" href="css/latex.css">
+  <link rel="stylesheet" href="css/table.css">
+  <link rel="stylesheet" href="css/custom.css">
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<article>
+<header>
+<h1 class="title"><a class="home" href="/">~/</a> Emacsclient and tmux split navigation</h1>
+<p class="subtitle sourceurl">
+ <a class="sourceurl" target="_blank" href="https://github.com/kdheepak/blog/blob/287f09217b83a30c1d99252d8995c86ef82285ed/content/16-emacsclient-tmux.md">
+    Mon, Jul 27, 2015
+ </a>
+</p>
+</header>
+<section>
+<p>I’ve described some of the scripts that I use regularly when using emacs in the terminal. I also using emacs with tmux, even though it seems like emacs itself could be tweaked to replace tmux. Currently, my tmux+zsh setup has been much more powerful that what emacs alone can provide. zsh did not play well, even with multiterm and I’ve had mixed results with getting ipython to work well inside emacs.</p>
+<p>I use the following set of lisps my .emacs to get seamless navigation between emacs splits and tmux panes.</p>
+<pre><code>;; Many thanks to the author of and contributors to the following posts:
+;; https://gist.github.com/mislav/5189704
+;; https://robots.thoughtbot.com/post/53022241323/seamlessly-navigate-vim-and-tmux-splits
+;;
+;; TODO: Make a script that generates tmux and emacs code without duplication
+;;
+;; NOTE: My keybindings are not the default emacs ones, using windmove
+
+;; Try to move direction, which is supplied as arg
+;; If cannot move that direction, send a tmux command to do appropriate move
+(defun windmove-emacs-or-tmux(dir tmux-cmd)
+(interactive)
+(if (ignore-errors (funcall (intern (concat &quot;windmove-&quot; dir))))
+nil                       ;; Moving within emacs
+(shell-command tmux-cmd)) ;; At edges, send command to tmux
+)
+
+;Move between windows with custom keybindings
+(global-set-key (kbd &quot;C-k&quot;)
+   &#39;(lambda () (interactive) (windmove-emacs-or-tmux &quot;up&quot;  &quot;tmux select-pane -U&quot;)))
+(global-set-key (kbd &quot;C-j&quot;)
+   &#39;(lambda () (interactive) (windmove-emacs-or-tmux &quot;down&quot;  &quot;tmux select-pane -D&quot;)))
+(global-set-key (kbd &quot;C-l&quot;)
+   &#39;(lambda () (interactive) (windmove-emacs-or-tmux &quot;right&quot; &quot;tmux select-pane -R&quot;)))
+(global-set-key (kbd &quot;C-h&quot;)
+   &#39;(lambda () (interactive) (windmove-emacs-or-tmux &quot;left&quot;  &quot;tmux select-pane -L&quot;)))</code></pre>
+<p>The following was added to .tmux.conf</p>
+<pre><code>## Smart pane switching with awareness of emacs splits.
+bind -n C-h run &quot;(tmux display-message -p &#39;#{pane_current_command}&#39; | grep -iqE &#39;(^|\/)g?(view|emacs?)(diff)?$&#39; &amp;&amp; tmux send-keys C-h) || tmux select-pane -L&quot;
+bind -n C-j run &quot;(tmux display-message -p &#39;#{pane_current_command}&#39; | grep -iqE &#39;(^|\/)g?(view|emacs?)(diff)?$&#39; &amp;&amp; tmux send-keys C-j) || tmux select-pane -D&quot;
+bind -n C-k run &quot;(tmux display-message -p &#39;#{pane_current_command}&#39; | grep -iqE &#39;(^|\/)g?(view|emacs?)(diff)?$&#39; &amp;&amp; tmux send-keys C-k) || tmux select-pane -U&quot;
+bind -n C-l run &quot;(tmux display-message -p &#39;#{pane_current_command}&#39; | grep -iqE &#39;(^|\/)g?(view|emacs?)(diff)?$&#39; &amp;&amp; tmux send-keys C-l) || tmux select-pane -R&quot;
+bind -n C-\ run &quot;(tmux display-message -p &#39;#{pane_current_command}&#39; | grep -iqE &#39;(^|\/)g?(view|emacs?)(diff)?$&#39; &amp;&amp; tmux send-keys &#39;C-\\&#39;) || tmux select-pane -l&quot;</code></pre>
+</section>
+<section>
+    <h1 id="comments"><a href="#comments">#</a> Comments</h1>
+    <script src="https://utteranc.es/client.js"
+        repo="kdheepak/blog"
+        issue-term="url"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+    </script>
+</section>
+</article>
+<script>
+var figures =
+  Array.prototype.slice.call(document.getElementsByClassName("figure"),0)
+  .concat(
+    Array.prototype.slice.call(document.getElementsByTagName("figure"),0));
+
+for (var i = 0; i < figures.length; i++) {
+  var figure = figures[i];
+  var imgs = figure.getElementsByTagName("img");
+  if (imgs.length > 0) {
+    classes = imgs[0].classList;
+    for (var j = 0; j < classes.length; j++) {
+        if (classes[j] === "fullwidth") {
+            figure.classList.add(classes[j]);
+        }
+    }
+  }
+}
+</script>
+
+<script>
+MathJax.Hub.Config({
+    jax: ["input/TeX","output/HTML-CSS"],
+    displayAlign: "left"
+});
+</script>
+<footer>
+    <p>
+    <a rel="license" href="https://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.
+    </p>
+    <p>
+    This site is <a href="https://github.com/kdheepak/blog">generated</a> using <a href="https://pandoc.org/">pandoc</a> and <a href="https://github.com/jez/tufte-pandoc-css">tufte-css</a>.
+    </p>
+    <p>
+      <a class="no-tufte-underline" href="https://github.com/kdheepak">
+        <img src="/images/Github-Mark-32px.png" alt="">
+      </a>
+      <a class="no-tufte-underline" href="/rss.xml">
+        <img src="/images/rss.svg" alt="">
+      </a>
+    </p>
+</footer>
+<script data-goatcounter="https://kdheepak.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>

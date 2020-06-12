@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <meta name="keywords" content="raspberry, pi, led, flask">
+  <meta name="description" content="Use your Raspberry Pi to control a desk lamp">
+  <title>Raspberry Pi Powered LED Lamp</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="css/table.css">
+  <link rel="stylesheet" href="css/pandoc-solarized.css">
+  <link rel="stylesheet" href="css/pandoc.css">
+  <link rel="stylesheet" href="css/tufte.css">
+  <link rel="stylesheet" href="css/tufte-extra.css">
+  <link rel="stylesheet" href="css/latex.css">
+  <link rel="stylesheet" href="css/table.css">
+  <link rel="stylesheet" href="css/custom.css">
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<article>
+<header>
+<h1 class="title"><a class="home" href="/">~/</a> Raspberry Pi Powered LED Lamp</h1>
+<p class="subtitle sourceurl">
+ <a class="sourceurl" target="_blank" href="https://github.com/kdheepak/blog/blob/287f09217b83a30c1d99252d8995c86ef82285ed/content/26-pi-powered-lamp.md">
+    Mon, Mar 28, 2016
+ </a>
+</p>
+</header>
+<section>
+<p>With a Raspberry Pi, you can control a RGB addressable LED strip. The instructions are very simple <span class="citation" data-cites="noauthor_led_nodate">[<a href="#ref-noauthor_led_nodate" role="doc-biblioref">1</a>]</span> and the results are pretty cool. I decided to make a desk lamp with a web interface<span><label for="mn-1" class="margin-toggle">&#8853;</label><input type="checkbox" id="mn-1" class="margin-toggle"/><span class="marginnote"><img src="images/raspberrypilamp.gif" alt="Raspberry Pi Powered LED Desk Lamp" /></span></span>. This post will go through the steps to build your own Pi powered desk lamp.</p>
+<section id="requirements" class="level1">
+<h1><a href="#requirements">#</a> Requirements</h1>
+<ul>
+<li>Raspberry Pi</li>
+<li>Memory card (greater than 4 GB recommended)</li>
+<li>Power Adapter</li>
+<li>LED Strip (LPD8806)</li>
+<li>Wires</li>
+<li>Lamp shade</li>
+</ul>
+</section>
+<section id="instructions" class="level1">
+<h1><a href="#instructions">#</a> Instructions</h1>
+<p>Any model of the Raspberry Pi should work for this project. First we need to set up the Raspberry Pi.</p>
+<section id="hardware" class="level2">
+<h2><a href="#hardware">##</a> Hardware</h2>
+<p>To use SPI on the Raspberry Pi, you need to connect 4 pins. Adafruit has an excellent image in their tutorial that shows how you can do this, which I’ve also linked below.</p>
+<figure>
+<img src="/images/raspberry_pi_diagram.png" class="fullwidth" alt="" /><figcaption>Wiring Diagram</figcaption>
+</figure>
+<p>I’ve used the same power source to the LED strip to power the Raspberry Pi as well.</p>
+<p>I found the lamp shades on <a href="https://www.amazon.com/s/field-keywords=puzzle+lamp">Amazon</a>. I purchased them in white, since the LEDs are RGB.</p>
+<p>I purchased the LED strip from Adafruit.</p>
+</section>
+<section id="software" class="level2">
+<h2><a href="#software">##</a> Software</h2>
+<p>Download the latest Raspbian from the <a href="https://www.raspberrypi.org/downloads/raspbian/">official source</a>. I used the image <code>2016-03-18-raspbian-jessie.img</code>. Flash the operating system onto a memory card.</p>
+<pre><code>sudo dd bs=1m if=2016-03-18-raspbian-jessie.img of=/dev/rdisk$DISKNUMBER</code></pre>
+<p>When using <code>dd</code> on OSX, I’ve found that <code>rdisk</code> is much faster than <code>disk</code><span><label for="sn-1" class="sidenote-number margin-toggle"/><input type="checkbox" id="sn-1" class="margin-toggle"/><span class="sidenote">Both <code>rdisk</code> and <code>disk</code> will work fine, but if you are using <code>disk</code> be prepared to wait longer - it took about an hour in my case.</span></span>.</p>
+<p>(<strong>Optional</strong>) Expand the file system to use all the available space on the memory card.</p>
+<pre><code>sudo raspi-config
+-&gt; Expand File System
+-&gt; Save
+-&gt; Reboot</code></pre>
+<p>To control this particular LED strip, we are going to use the SPI bus on the Raspberry Pi. We need to set up the Pi to use SPI.</p>
+<pre><code>sudo raspi-config
+-&gt; Advanced Options
+-&gt; Enable SPI
+-&gt; Enable on Boot
+-&gt; Save
+-&gt; Reboot</code></pre>
+<p>Next, we need to install some packages to use the SPI bus. First, let’s update the Raspberry Pi.</p>
+<pre><code>sudo apt-get update
+sudo apt-get upgrade</code></pre>
+<p>Then we need to install <code>python-dev</code>, <a href="https://github.com/doceme/py-spidev">pyspidev</a> and <a href="https://github.com/ManiacalLabs/BiblioPixel">BiblioPixel</a>. These are all required to control the LED strip.</p>
+<pre><code>sudo apt-get install python-dev
+sudo pip install spidev
+sudo pip install BiblioPixel</code></pre>
+<p>Instead of installing spidev and BiblioPixel, you can also clone the repositories and add them to your <code>PYTHONPATH</code>. I found that <code>sudo pip install &lt;package-name&gt;</code> is easier, however I had to browse through the source code of <code>BiblioPixel</code> and found having a local copy accessible was helpful.</p>
+<p>Finally, we need <code>Flask</code> to set up a server on the Raspberry Pi.</p>
+<pre><code>sudo pip install Flask</code></pre>
+<p>I’ve used <code>sudo</code> for all the <code>pip</code> installations. It is definitely required for <code>spidev</code>, but may not be for the others. You will need to use <code>sudo</code> to run the application, since root access is required to control GPIO pins on the Raspberry Pi.</p>
+<section id="bibliopixel" class="level3">
+<h3><a href="#bibliopixel">###</a> BiblioPixel</h3>
+<p>The tutorial on Adafruit’s page links to a library for their LED strip, which the author has deprecated in favour of the excellent BiblioPixel <span class="citation" data-cites="noauthor_maniacallabs/bibliopixel_nodate">[<a href="#ref-noauthor_maniacallabs/bibliopixel_nodate" role="doc-biblioref">2</a>]</span>. I recommend using BiblioPixel as well — if you want to use a different LED strip in the future this will make it very easy to use the same code base.</p>
+<p>At this point, you should be able to run a few examples, and see animations on your LED strip.</p>
+</section>
+<section id="flask" class="level3">
+<h3><a href="#flask">###</a> Flask</h3>
+<p>I’ve set up a simple Flask server and am using a Javascript library called <a href="https://jweir.github.io/colorwheel/">colorwheel</a> to send a user selected color to the Raspberry Pi. The code for the Flask server is available on <a href="https://github.com/kdheepak/arp">GitHub</a> under MIT License.</p>
+<p>If you want more information, feel free to ask me any questions in the comments section below!</p>
+</section>
+</section>
+</section>
+<section id="bibliography" class="level1 unnumbered">
+<h1 class="unnumbered"><a href="#bibliography">#</a> References</h1>
+<div id="refs" class="references" role="doc-bibliography">
+<div id="ref-noauthor_led_nodate">
+<p>[1] “LED strip and RGB LED software Raspberry Pi LED Spectrum Analyzer Adafruit Learning System.” Accessed: Mar. 28, 2016. [Online]. Available: <a href="https://learn.adafruit.com/raspberry-pi-spectrum-analyzer-display-on-rgb-led-strip/led-strip-and-rgb-led-software">https://learn.adafruit.com/raspberry-pi-spectrum-analyzer-display-on-rgb-led-strip/led-strip-and-rgb-led-software</a>.</p>
+</div>
+<div id="ref-noauthor_maniacallabs/bibliopixel_nodate">
+<p>[2] “ManiacalLabs/BiblioPixel.” Accessed: May 27, 2016. [Online]. Available: <a href="https://github.com/ManiacalLabs/BiblioPixel">https://github.com/ManiacalLabs/BiblioPixel</a>.</p>
+</div>
+</div>
+</section>
+</section>
+<section>
+    <h1 id="comments"><a href="#comments">#</a> Comments</h1>
+    <script src="https://utteranc.es/client.js"
+        repo="kdheepak/blog"
+        issue-term="url"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+    </script>
+</section>
+</article>
+<script>
+var figures =
+  Array.prototype.slice.call(document.getElementsByClassName("figure"),0)
+  .concat(
+    Array.prototype.slice.call(document.getElementsByTagName("figure"),0));
+
+for (var i = 0; i < figures.length; i++) {
+  var figure = figures[i];
+  var imgs = figure.getElementsByTagName("img");
+  if (imgs.length > 0) {
+    classes = imgs[0].classList;
+    for (var j = 0; j < classes.length; j++) {
+        if (classes[j] === "fullwidth") {
+            figure.classList.add(classes[j]);
+        }
+    }
+  }
+}
+</script>
+
+<script>
+MathJax.Hub.Config({
+    jax: ["input/TeX","output/HTML-CSS"],
+    displayAlign: "left"
+});
+</script>
+<footer>
+    <p>
+    <a rel="license" href="https://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.
+    </p>
+    <p>
+    This site is <a href="https://github.com/kdheepak/blog">generated</a> using <a href="https://pandoc.org/">pandoc</a> and <a href="https://github.com/jez/tufte-pandoc-css">tufte-css</a>.
+    </p>
+    <p>
+      <a class="no-tufte-underline" href="https://github.com/kdheepak">
+        <img src="/images/Github-Mark-32px.png" alt="">
+      </a>
+      <a class="no-tufte-underline" href="/rss.xml">
+        <img src="/images/rss.svg" alt="">
+      </a>
+    </p>
+</footer>
+<script data-goatcounter="https://kdheepak.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>
